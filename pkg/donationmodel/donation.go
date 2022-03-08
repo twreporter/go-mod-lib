@@ -76,54 +76,53 @@ type PayInfo struct {
 	Point                  null.Int    `gorm:"column:linepay_point;type:int;" json:"point"`
 }
 
+type BasicModel struct {
+	ID               uint        `gorm:"primary_key" json:"id"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
+	DeletedAt        null.Time  `json:"deleted_at"`
+}
+
 type PayByPrimeDonation struct {
+	BasicModel
 	CardInfo
 	Cardholder
 	TappayResp
 	Receipt
 	PayInfo          `json:"pay_info"`
 	Amount           uint        `gorm:"not null" json:"amount"`
-	CreatedAt        time.Time   `json:"created_at"`
 	Currency         string      `gorm:"type:varchar(3);default:'TWD';not null" json:"currency"`
-	DeletedAt        *time.Time  `json:"deleted_at"`
 	Details          string      `gorm:"type:varchar(50);not null" json:"details"`
-	ID               uint        `gorm:"primary_key" json:"id"`
 	MerchantID       string      `gorm:"type:varchar(30);not null" json:"merchant_id"`
 	Notes            string      `gorm:"type:varchar(100)" json:"notes"`
 	OrderNumber      string      `gorm:"type:varchar(50);not null" json:"order_number"`
 	PayMethod        string      `gorm:"type:ENUM('credit_card','line','apple','google','samsung');not null;index:idx_pay_by_prime_donations_cardholder_email_pay_method" json:"pay_method"`
 	SendReceipt      string      `gorm:"type:ENUM('yearly', 'monthly', 'no', 'no_receipt', 'digital_receipt_by_month', 'digital_receipt_by_year', 'paperback_receipt_by_month', 'paperback_receipt_by_year');default:'no_receipt'" json:"send_receipt"`
 	Status           string      `gorm:"type:ENUM('paying','paid','fail','refunded');not null" json:"status"`
-	UpdatedAt        time.Time   `json:"updated_at"`
 	UserID           uint        `gorm:"type:int(10);unsigned;not null" json:"user_id"`
 	IsAnonymous      null.Bool   `gorm:"type:tinyint(1);default:0" json:"is_anonymous"`
 	AutoTaxDeduction null.Bool   `gorm:"type:tinyint(1)" json:"auto_tax_deduction"`
 }
 
 type PayByCardTokenDonation struct {
+	BasicModel
 	TappayResp
 	Amount      uint       `gorm:"not null;index:idx_pay_by_card_token_donations_amount" json:"amount"`
-	CreatedAt   time.Time  `json:"created_at"`
 	Currency    string     `gorm:"type:varchar(3);default:'TWD';not null" json:"currency"`
-	DeletedAt   *time.Time `json:"deleted_at"`
 	Details     string     `gorm:"type:varchar(50);not null" json:"details"`
-	ID          uint       `gorm:"primary_key" json:"id"`
 	MerchantID  string     `gorm:"type:varchar(30);not null" json:"merchant_id"`
 	OrderNumber string     `gorm:"type:varchar(50);not null" json:"order_number"`
 	PeriodicID  uint       `gorm:"not null;index:idx_pay_by_card_token_donations_periodic_id" json:"periodic_id"`
 	Status      string     `gorm:"type:ENUM('paying','paid','fail','refunded');not null" json:"status"`
-	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 type PayByOtherMethodDonation struct {
+	BasicModel
 	Address       string      `gorm:"type:varchar(100)" json:"address"`
 	Amount        uint        `gorm:"type:int(10) unsigned;index:idx_pay_by_other_donations_amount" json:"amount"`
-	CreatedAt     time.Time   `json:"created_at"`
 	Currency      string      `gorm:"type:char(3);default:'TWD';not null" json:"currency"`
-	DeletedAt     *time.Time  `json:"deleted_at"`
 	Details       string      `gorm:"type:varchar(50);not null" json:"details"`
 	Email         string      `gorm:"type:varchar(100);not null" json:"email"`
-	ID            uint        `gorm:"primary_key" json:"id"`
 	MerchantID    string      `gorm:"type:varchar(30);not null" json:"merchant_id"`
 	Name          string      `gorm:"type:varchar(30)" json:"name"`
 	NationalID    string      `gorm:"type:varchar(20)" json:"national_id"`
@@ -133,25 +132,22 @@ type PayByOtherMethodDonation struct {
 	PayMethod     string      `gorm:"type:varchar(50);not null;index:idx_pay_by_other_donations_pay_method" json:"pay_method"`
 	PhoneNumber   string      `gorm:"type:varchar(20)" json:"phone_number"`
 	SendReceipt   string      `gorm:"type:ENUM('no', 'yearly', 'monthly', 'no_receipt', 'digital_receipt_by_month', 'digital_receipt_by_year', 'paperback_receipt_by_month', 'paperback_receipt_by_year');default:'no_receipt'" json:"send_receipt"`
-	UpdatedAt     time.Time   `json:"updated_at"`
 	UserID        uint        `gorm:"type:int(10) unsigned;not null" json:"user_id"`
 	ZipCode       string      `gorm:"type:varchar(10)" json:"zip_code"`
 	ReceiptHeader null.String `gorm:"type:varchar(128)" json:"receipt_header"`
 }
 
 type PeriodicDonation struct {
+	BasicModel
 	Cardholder
 	CardInfo
 	Receipt
 	Amount           uint        `gorm:"type:int(10) unsigned;not null;index:idx_periodic_donations_amount" json:"amount"`
 	CardKey          string      `gorm:"type:tinyblob" json:"card_key"`
 	CardToken        string      `gorm:"type:tinyblob" json:"card_token"`
-	CreatedAt        time.Time   `json:"created_at"`
 	Currency         string      `gorm:"type:varchar(3);default:'TWD';not null" json:"currency"`
-	DeletedAt        *time.Time  `json:"deleted_at"`
 	Details          string      `gorm:"type:varchar(50);not null" json:"details"`
 	Frequency        string      `gorm:"type:ENUM('monthly', 'yearly');default:'monthly'" json:"frequency"`
-	ID               uint        `gorm:"primary_key" json:"id"`
 	LastSuccessAt    null.Time   `json:"last_success_at"`
 	MaxPaidTimes     uint        `json:"max_paid_times" gorm:"type:int;not null;default:2147483647"`
 	Notes            string      `gorm:"type:varchar(100)" json:"notes"`
@@ -159,7 +155,6 @@ type PeriodicDonation struct {
 	SendReceipt      string      `gorm:"type:ENUM('yearly', 'no', 'no_receipt', 'digital_receipt_by_year', 'paperback_receipt_by_year');default:'no_receipt'" json:"send_receipt"`
 	Status           string      `gorm:"type:ENUM('to_pay','paying','paid','fail','stopped','invalid');not null" json:"status"`
 	ToFeedback       null.Bool   `gorm:"type:tinyint(1);default:1" json:"to_feedback"`
-	UpdatedAt        time.Time   `json:"updated_at"`
 	UserID           uint        `gorm:"type:int(10) unsigned;not null" json:"user_id"`
 	IsAnonymous      null.Bool   `gorm:"type:tinyint(1);default:0" json:"is_anonymous"`
 	AutoTaxDeduction null.Bool   `gorm:"type:tinyint(1)" json:"auto_tax_deduction"`
