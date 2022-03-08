@@ -6,6 +6,13 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
+type BasicModel struct {
+	ID        uint      `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt null.Time `json:"deleted_at"`
+}
+
 type TappayResp struct {
 	Acquirer                 string      `gorm:"type:varchar(50);not null" json:"acquirer"`
 	AuthCode                 string      `gorm:"type:varchar(6);not null" json:"auth_code"`
@@ -77,6 +84,7 @@ type PayInfo struct {
 }
 
 type PayByPrimeDonation struct {
+	BasicModel
 	CardInfo
 	Cardholder
 	TappayResp
@@ -101,6 +109,7 @@ type PayByPrimeDonation struct {
 }
 
 type PayByCardTokenDonation struct {
+	BasicModel
 	TappayResp
 	Amount      uint       `gorm:"not null;index:idx_pay_by_card_token_donations_amount" json:"amount"`
 	CreatedAt   time.Time  `json:"created_at"`
@@ -140,6 +149,7 @@ type PayByOtherMethodDonation struct {
 }
 
 type PeriodicDonation struct {
+	BasicModel
 	Cardholder
 	CardInfo
 	Receipt
