@@ -60,7 +60,7 @@ type Cardholder struct {
 type Receipt struct {
 	Header             null.String `gorm:"column:receipt_header;type:varchar(128)" json:"header"`
 	SecurityID         null.String `gorm:"column:receipt_security_id;type:varchar(20)" json:"security_id"`
-	Email              null.String `gorm:"column:receipt_email;type:varchar(100)" json:"email"`
+	ReceiptEmail       null.String `gorm:"column:receipt_email;type:varchar(100)" json:"email"`
 	AddressCountry     null.String `gorm:"column:receipt_address_country;type:varchar(45)" json:"address_country"`
 	AddressState       null.String `gorm:"column:receipt_address_state;type:varchar(45)" json:"address_state"`
 	AddressCity        null.String `gorm:"column:receipt_address_city;type:varchar(45)" json:"address_city"`
