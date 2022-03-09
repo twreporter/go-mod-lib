@@ -76,19 +76,15 @@ type PayInfo struct {
 	Point                  null.Int    `gorm:"column:linepay_point;type:int;" json:"point"`
 }
 
-type BasicModel struct {
-	ID               uint        `gorm:"primary_key" json:"id"`
-	CreatedAt        time.Time   `json:"created_at"`
-	UpdatedAt        time.Time   `json:"updated_at"`
-	DeletedAt        null.Time  `json:"deleted_at"`
-}
-
 type PayByPrimeDonation struct {
-	BasicModel
 	CardInfo
 	Cardholder
 	TappayResp
 	Receipt
+	ID               uint        `gorm:"primary_key" json:"id"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
+	DeletedAt        null.Time  `json:"deleted_at"`
 	PayInfo          `json:"pay_info"`
 	Amount           uint        `gorm:"not null" json:"amount"`
 	Currency         string      `gorm:"type:varchar(3);default:'TWD';not null" json:"currency"`
@@ -105,8 +101,11 @@ type PayByPrimeDonation struct {
 }
 
 type PayByCardTokenDonation struct {
-	BasicModel
 	TappayResp
+	ID               uint        `gorm:"primary_key" json:"id"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
+	DeletedAt        null.Time  `json:"deleted_at"`
 	Amount      uint       `gorm:"not null;index:idx_pay_by_card_token_donations_amount" json:"amount"`
 	Currency    string     `gorm:"type:varchar(3);default:'TWD';not null" json:"currency"`
 	Details     string     `gorm:"type:varchar(50);not null" json:"details"`
@@ -117,7 +116,10 @@ type PayByCardTokenDonation struct {
 }
 
 type PayByOtherMethodDonation struct {
-	BasicModel
+	ID               uint        `gorm:"primary_key" json:"id"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
+	DeletedAt        null.Time  `json:"deleted_at"`
 	Address       string      `gorm:"type:varchar(100)" json:"address"`
 	Amount        uint        `gorm:"type:int(10) unsigned;index:idx_pay_by_other_donations_amount" json:"amount"`
 	Currency      string      `gorm:"type:char(3);default:'TWD';not null" json:"currency"`
@@ -138,10 +140,13 @@ type PayByOtherMethodDonation struct {
 }
 
 type PeriodicDonation struct {
-	BasicModel
 	Cardholder
 	CardInfo
 	Receipt
+	ID               uint        `gorm:"primary_key" json:"id"`
+	CreatedAt        time.Time   `json:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at"`
+	DeletedAt        null.Time  `json:"deleted_at"`
 	Amount           uint        `gorm:"type:int(10) unsigned;not null;index:idx_periodic_donations_amount" json:"amount"`
 	CardKey          string      `gorm:"type:tinyblob" json:"card_key"`
 	CardToken        string      `gorm:"type:tinyblob" json:"card_token"`
