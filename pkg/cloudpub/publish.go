@@ -46,7 +46,7 @@ func NewPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 	return entry, nil
 }
 
-func (p *publisher) Publish(ctx context.Context, msg []byte) error {
+func (p *publisher) publish(ctx context.Context, msg []byte) error {
 	m := &pubsub.Message{Data: msg}
 
 	res := p.Topic.Publish(ctx, m)
@@ -54,7 +54,7 @@ func (p *publisher) Publish(ctx context.Context, msg []byte) error {
 	return err
 }
 
-func publishNotifications(ctx context.Context, ms []*Message) {
+func PublishNotifications(ctx context.Context, ms []*Message) {
 	var wg sync.WaitGroup
 
 	if len(ms) == 0 {
