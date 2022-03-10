@@ -7,8 +7,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	f "github.com/twreporter/logformatter"
 	"cloud.google.com/go/pubsub"
-
-	"github.com/twreporter/go-api/globals"
 )
 
 type(
@@ -32,7 +30,7 @@ var (
 )
 
 func newPublisher(ctx context.Context, conf *Config) (*publisher, error) {
-	log.infof("new publisher %+v", conf)
+	log.Infof("new publisher %+v", conf)
 	c, err := pubsub.NewClient(ctx, conf.ProjectID)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -43,7 +41,7 @@ func newPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 	entry = &publisher {
 		Topic: t
 	}
-	return entry, nil
+	return entry
 }
 
 func (p *publisher) Publish(ctx context.Context, msg []byte) error {
@@ -69,7 +67,7 @@ func publishNotifications(ctx context.Context, ms []*Message) {
 
 			defer func() {
 				if err != nil {
-					log.withField("err", err).Errorf("%s", f.FormatStack(err))
+					log.WithField("err", err).Errorf("%s", f.FormatStack(err))
 				}
 			}()
 			defer wg.Done()
