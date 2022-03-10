@@ -74,7 +74,7 @@ func PublishNotifications(ctx context.Context, ms []*Message) {
 			}()
 			defer wg.Done()
 
-			err = entry.Publish(ctx, d)
+			err = entry.publish(ctx, d)
 			if err != nil {
 				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d, order: %s", id, orderNumber))
 			}
