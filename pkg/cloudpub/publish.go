@@ -38,10 +38,10 @@ func newPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 
 	t := c.Topic(conf.Topic)
 
-	entry = &publisher {
+	entry = &publisher{
 		Topic: t
 	}
-	return entry
+	return entry, nil
 }
 
 func (p *publisher) Publish(ctx context.Context, msg []byte) error {
