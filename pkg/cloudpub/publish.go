@@ -64,7 +64,7 @@ func publishNotifications(ctx context.Context, ms []*Message) {
 	wg.Add(len(ms))
 	for _, m := range ms {
 		data, _ := json.Marshal(m)
-		go func(id int, d []byte) {
+		go func(id uint, orderNumber string, d []byte) {
 			var err error
 
 			defer func() {
@@ -76,8 +76,8 @@ func publishNotifications(ctx context.Context, ms []*Message) {
 
 			err = entry.Publish(ctx, d)
 			if err != nil {
-				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d", id))
+				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d, order: %s", id, orderNumber))
 			}
-		}(m.ID, data)
+		}(m.ID, m.OrderNumber, data)
 	}
 }
