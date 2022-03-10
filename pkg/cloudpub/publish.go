@@ -32,7 +32,7 @@ var (
 	entry *publisher
 )
 
-func newPublisher(ctx context.Context, conf *Config) (*publisher, error) {
+func NewPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 	log.Infof("new publisher %+v", conf)
 	c, err := pubsub.NewClient(ctx, conf.ProjectID)
 	if err != nil {
