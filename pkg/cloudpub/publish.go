@@ -19,8 +19,9 @@ type(
 	}
 
 	Message struct {
-		ID   int
-		Type string
+		ID          uint
+		OrderNumber string
+		Type        string
 	}
 
 	publisher struct {
