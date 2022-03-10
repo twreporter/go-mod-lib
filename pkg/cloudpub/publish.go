@@ -2,11 +2,14 @@ package cloudpub
 
 import (
 	"context"
-	"io"
+	"sync"
+	"fmt"
+	"encoding/json"
 
 	log "github.com/sirupsen/logrus"
 	f "github.com/twreporter/logformatter"
 	"cloud.google.com/go/pubsub"
+	"github.com/pkg/errors"
 )
 
 type(
@@ -38,9 +41,7 @@ func newPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 
 	t := c.Topic(conf.Topic)
 
-	entry = &publisher{
-		Topic: t
-	}
+	entry = &publisher{Topic: t}
 	return entry, nil
 }
 
@@ -59,9 +60,9 @@ func publishNotifications(ctx context.Context, ms []*Message) {
 		return
 	}
 
-	wg.add(len(ms))
+	wg.Add(len(ms))
 	for _, m := range ms {
-		data := json.Marshal(m)
+		data, _ := json.Marshal(m)
 		go func(id int, d []byte) {
 			var err error
 
