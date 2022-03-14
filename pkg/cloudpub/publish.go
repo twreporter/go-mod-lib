@@ -24,6 +24,11 @@ type(
 		Type        string
 	}
 
+	ErrorStack struct {
+		Message
+		Err     error
+	}
+
 	publisher struct {
 		Topic *pubsub.Topic
 	}
@@ -54,30 +59,54 @@ func (p *publisher) publish(ctx context.Context, msg []byte) error {
 	return err
 }
 
-func PublishNotifications(ctx context.Context, ms []*Message) {
+func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 	var wg sync.WaitGroup
+	var errors []ErrorStack
 
 	if len(ms) == 0 {
-		return
+		return errors
 	}
 
+	ch := make(chan ErrorStack, len(ms))
 	wg.Add(len(ms))
 	for _, m := range ms {
-		data, _ := json.Marshal(m)
-		go func(id uint, orderNumber string, d []byte) {
+		data, err := json.Marshal(m)
+		if err != nil {
+			err = errors.Wrap(err, fmt.Sprintf("Fail to marshal ID: %d, order: %s", m.ID, m.OrderNumber))
+			errors = append(errors, ErrorStack{Err: err, Message: m})
+			wg.Done()
+			continue
+		}
+		go func(m Message, d []byte) {
 			var err error
 
 			defer func() {
 				if err != nil {
 					log.WithField("err", err).Errorf("%s", f.FormatStack(err))
+					ch <- ErrorStack{Err: err, Message: m}
 				}
 			}()
 			defer wg.Done()
 
 			err = entry.publish(ctx, d)
 			if err != nil {
-				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d, order: %s", id, orderNumber))
+				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d, order: %s", m.ID, m.OrderNumber))
 			}
-		}(m.ID, m.OrderNumber, data)
+		}(m, data)
 	}
+	wg.Wait()
+
+	// close channel here to avoid deadlock
+	close(ch)
+
+	// consuming error channel
+	wg.Add(1)
+	go func(ch chan ErrorStack, errors *[]ErrorStack) {
+		for err := range ch {
+			*errors = append(*errors, err)
+		}
+	}(ch, &errors)
+
+	wg.Wait()
+	return errors
 }
