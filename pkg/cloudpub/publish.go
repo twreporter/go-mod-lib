@@ -76,26 +76,38 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 		data, err := json.Marshal(m)
 		if err != nil {
 			err = errors.Wrap(err, fmt.Sprintf("Fail to marshal ID: %d, order: %s", m.ID, m.OrderNumber))
-			es = append(es, ErrorStack{Err: err, Message: *m})
+			es = append(es, ErrorStack{
+				Err: err,
+				Message: Message{
+					ID: m.ID,
+					OrderNumber: m.OrderNumber,
+					Type: m.Type,
+				},
+			})
 			wg.Done()
 			continue
 		}
-		go func(m *Message, d []byte) {
-			var err error
-
+		go func(id uint, order string, donationType string, d []byte) {
 			defer func() {
 				if err != nil {
 					log.WithField("err", err).Errorf("%s", f.FormatStack(err))
-					ch <- ErrorStack{Err: err, Message: *m}
+					ch <- ErrorStack{
+						Err: err,
+						Message: Message{
+							ID: id,
+							OrderNumber: order,
+							Type: donationType,
+						},
+					}
 				}
 			}()
 			defer wg.Done()
 
-			err = entry.publish(ctx, d)
+			err := entry.publish(ctx, d)
 			if err != nil {
-				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d, order: %s", m.ID, m.OrderNumber))
+				err = errors.Wrap(err, fmt.Sprintf("Fail to publish ID: %d, order: %s", id, order))
 			}
-		}(m, data)
+		}(m.ID, m.OrderNumber, m.Type, data)
 	}
 	wg.Wait()
 
