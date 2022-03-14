@@ -61,10 +61,10 @@ func (p *publisher) publish(ctx context.Context, msg []byte) error {
 
 func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 	var wg sync.WaitGroup
-	var errors []ErrorStack
+	var es []ErrorStack
 
 	if len(ms) == 0 {
-		return errors
+		return es
 	}
 
 	ch := make(chan ErrorStack, len(ms))
@@ -73,17 +73,17 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 		data, err := json.Marshal(m)
 		if err != nil {
 			err = errors.Wrap(err, fmt.Sprintf("Fail to marshal ID: %d, order: %s", m.ID, m.OrderNumber))
-			errors = append(errors, ErrorStack{Err: err, Message: m})
+			es = append(es, ErrorStack{Err: err, Message: *m})
 			wg.Done()
 			continue
 		}
-		go func(m Message, d []byte) {
+		go func(m *Message, d []byte) {
 			var err error
 
 			defer func() {
 				if err != nil {
 					log.WithField("err", err).Errorf("%s", f.FormatStack(err))
-					ch <- ErrorStack{Err: err, Message: m}
+					ch <- ErrorStack{Err: err, Message: *m}
 				}
 			}()
 			defer wg.Done()
@@ -101,12 +101,12 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 
 	// consuming error channel
 	wg.Add(1)
-	go func(ch chan ErrorStack, errors *[]ErrorStack) {
+	go func(ch chan ErrorStack, es *[]ErrorStack) {
 		for err := range ch {
-			*errors = append(*errors, err)
+			*es = append(*es, err)
 		}
-	}(ch, &errors)
+	}(ch, &es)
 
 	wg.Wait()
-	return errors
+	return es
 }
