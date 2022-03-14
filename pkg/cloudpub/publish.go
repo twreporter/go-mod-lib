@@ -73,6 +73,18 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 	ch := make(chan ErrorStack, len(ms))
 	wg.Add(len(ms))
 	for _, m := range ms {
+		if (entry == nil) {
+			es = append(es, ErrorStack{
+				Err: errors.New("Publisher is nil"),
+				Message: Message{
+					ID: m.ID,
+					OrderNumber: m.OrderNumber,
+					Type: m.Type,
+				},
+			})
+			wg.Done()
+			continue
+		}
 		data, err := json.Marshal(m)
 		if err != nil {
 			err = errors.Wrap(err, fmt.Sprintf("Fail to marshal ID: %d, order: %s", m.ID, m.OrderNumber))
