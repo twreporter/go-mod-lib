@@ -52,6 +52,9 @@ func NewPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 }
 
 func (p *publisher) publish(ctx context.Context, msg []byte) error {
+	if p.Topic == nil {
+		return errors.New("invalid publisher")
+	}
 	m := &pubsub.Message{Data: msg}
 
 	res := p.Topic.Publish(ctx, m)
