@@ -132,6 +132,7 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 		for err := range ch {
 			*es = append(*es, err)
 		}
+		wg.Done()
 	}(ch, &es)
 
 	wg.Wait()
