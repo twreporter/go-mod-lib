@@ -43,9 +43,9 @@ func (c *Client) Notify(ctx context.Context, message string) error {
 	return nil
 }
 
-func generateMessage(m cloudpub.Message) string {
+func generateMessage(id uint, orderNumber string, donationType string) string {
 	msg := fmt.Sprintf("Publish to cloud pub/sub err:\n")
-	msg += fmt.Sprintf("Message:\n  %+v", m)
+	msg += fmt.Sprintf("Message:\n  type: %s, id: %d, orderNumber: %s", donationType, id, orderNumber)
 	return msg
 }
 
@@ -58,15 +58,15 @@ func NeticrmNotify(ctx context.Context, es []*cloudpub.ErrorStack) {
 
 	wg.Add(len(es))
 	for _, e := range es {
-		go func() {
+		go func(id uint, orderNumber string, donationType string) {
 			defer wg.Done()
 
-			slackMsg := generateMessage(e.Message)
+			slackMsg := generateMessage(id, orderNumber, donationType)
 			err := entry.Notify(ctx, slackMsg)
 			if err != nil {
 				log.WithField("Notify slack err", err).Errorf("%s", f.FormatStack(err))
 			}
-		}()
+		}(e.Message.ID, e.Message.OrderNumber, e.Message.Type)
 	}
 
 	wg.Wait()
