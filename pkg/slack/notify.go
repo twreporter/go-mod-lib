@@ -49,7 +49,7 @@ func generateMessage(id uint, orderNumber string, donationType string) string {
 	return msg
 }
 
-func NeticrmNotify(ctx context.Context, es []*cloudpub.ErrorStack) {
+func NeticrmNotify(ctx context.Context, es []cloudpub.ErrorStack) {
 	var wg sync.WaitGroup
 
 	if len(es) == 0 {
