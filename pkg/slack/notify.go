@@ -25,7 +25,7 @@ var (
 )
 
 func NewClient(conf *Config) (*Client, error) {
-	entry := &Client{
+	entry = &Client{
 		webhook: conf.Webhook,
 	}
 	return entry, nil
@@ -51,6 +51,10 @@ func generateMessage(id uint, orderNumber string, donationType string) string {
 
 func NeticrmNotify(ctx context.Context, es []cloudpub.ErrorStack) {
 	var wg sync.WaitGroup
+
+	if entry == nil {
+		return
+	}
 
 	if len(es) == 0 {
 		return
