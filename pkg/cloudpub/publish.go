@@ -42,6 +42,7 @@ func NewPublisher(ctx context.Context, conf *Config) (*publisher, error) {
 	log.Infof("new publisher %+v", conf)
 	c, err := pubsub.NewClient(ctx, conf.ProjectID)
 	if err != nil {
+		log.Errorf("init publisher fail: %s", f.FormatStack(err))
 		return nil, errors.WithStack(err)
 	}
 
@@ -56,6 +57,7 @@ func (p *publisher) publish(ctx context.Context, msg []byte) error {
 		return errors.New("invalid publisher")
 	}
 	m := &pubsub.Message{Data: msg}
+	log.Infof("publish: %+v", m)
 
 	res := p.Topic.Publish(ctx, m)
 	_, err := res.Get(ctx)
@@ -63,7 +65,7 @@ func (p *publisher) publish(ctx context.Context, msg []byte) error {
 }
 
 func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
-	log.Infof("publish notification: %+v", ms)
+	log.Infof("publish notification: %d", len(ms))
 	var wg sync.WaitGroup
 	var es []ErrorStack
 
@@ -75,6 +77,7 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 	wg.Add(len(ms))
 	for _, m := range ms {
 		if (entry == nil) {
+			log.Errorf("publisher is nil")
 			es = append(es, ErrorStack{
 				Err: errors.New("Publisher is nil"),
 				Message: Message{
@@ -88,6 +91,7 @@ func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
 		}
 		data, err := json.Marshal(m)
 		if err != nil {
+			log.WithField("err", err).Errorf("%s", f.FormatStack(err))
 			err = errors.Wrap(err, fmt.Sprintf("Fail to marshal ID: %d, order: %s", m.ID, m.OrderNumber))
 			es = append(es, ErrorStack{
 				Err: err,
