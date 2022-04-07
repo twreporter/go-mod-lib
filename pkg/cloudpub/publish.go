@@ -63,6 +63,7 @@ func (p *publisher) publish(ctx context.Context, msg []byte) error {
 }
 
 func PublishNotifications(ctx context.Context, ms []*Message) ([]ErrorStack){
+	log.Infof("publish notification: %+v", ms)
 	var wg sync.WaitGroup
 	var es []ErrorStack
 
